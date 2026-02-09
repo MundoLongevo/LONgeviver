@@ -10,8 +10,7 @@
     <meta name="author" content="Ricardo de Faria Barros - Psicólogo, ricardo@animodh.com.br">
     
     <!-- MANIFEST PWA -->
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIkxvbmdlVml2ZXIgRlE1QyIsCiAgInNob3J0X25hbWUiOiAiTG9uZ2VWaXZlciIsCiAgImRlc2NyaXB0aW9uIjogIlNpc3RlbWEgY29tcGxldG8gZGUgaMOhYml0b3MsIGRlc2FmaW9zLCBmaW5hbsOnYXMgZSBjb25leMOjbyBzb2NpYWwiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2Y1ZjdmYSIsCiAgInRoZW1lX2NvbG9yIjogIiM0MzYxZWUiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIKfQ==">
-    
+    <link rel="manifest" href="./manifest.webmanifest">
     <!-- iOS CONFIGURAÇÃO -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -19,11 +18,9 @@
     <meta name="format-detection" content="telephone=no">
     
     <!-- ÍCONE PARA iOS -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzNiIgZmlsbD0iIzQzNjFFRSIvPjxwYXRoIGQ9Ik05NiA0MEM2NS4wNzI2IDQwIDQwIDY1LjA3MjYgNDAgOTZDNDAgMTI2LjkyNyA2NS4wNzI2IDE1MiA5NiAxNTJjMjYuOTI3IDAgNTItMjUuMDczIDUyLTU2cy0yNS4wNzMtNTYtNTItNTZ6bTAgMTQwYy00Ni4yIDAtODQtMzcuOC04NC04NHMzNy44LTg0IDg0LTg0IDg0IDM3LjggODQgODQtMzcuOCA4NC04NCA4NHoiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii45Ii8+PHBhdGggZD0iTTk2IDY0Yy0xNy42NzMgMC0zMiAxNC4zMjctMzIgMzJzMTQuMzI3IDMyIDMyIDMyIDMyLTE0LjMyNyAzMi0zMi0xNC4zMjctMzItMzItMzJ6IiBmaWxsPSIjRjcyNTg1Ii8+PC9zdmc+">
-    
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
     <!-- FAVICON -->
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHJ4PSI2IiBmaWxsPSIjNDM2MWVlIi8+PHBhdGggZD0iTTE2IDZjLTUuNTIzIDAtMTAgNC40NzctMTAgMTBzNC40NzcgMTAgMTAgMTAgMTAtNC40NzcgMTAtMTAtNC40NzctMTAtMTAtMTB6bTAgMThjLTQuNDE5IDAtOC0zLjU4MS04LThzMy41ODEtOCA4LTggOCAzLjU4MSA4IDgtMy41ODEgOC04IDh6IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuOSIvPjxwYXRoIGQ9Ik0xNiAxMWMtMi43NjEgMC01IDIuMjM5LTUgNXMyLjIzOSA1IDUgNSA1LTIuMjM5IDUtNS0yLjIzOS01LTUtNXoiIGZpbGw9IiNGNzI1ODUiLz48L3N2Zz4=">
-    
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
     <title>LongeViver FQ5C - Sistema Completo</title>
     
     <style>
@@ -1397,6 +1394,62 @@
         // DETECTAR DISPOSITIVO
         const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+        // ============================================
+        // PWA - SERVICE WORKER (OFFLINE + INSTALÁVEL)
+        // ============================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(console.error);
+            });
+        }
+
+        // ============================================
+        // iOS - DICA PARA INSTALAR (Safari)
+        // ============================================
+        function showIOSInstallHint() {
+            if (!isIOS() || isStandalone()) return;
+            if (document.getElementById('iosInstallHint')) return;
+
+            const bar = document.createElement('div');
+            bar.id = 'iosInstallHint';
+            bar.style.cssText = `
+                position: fixed;
+                left: 12px; right: 12px; bottom: 12px;
+                background: rgba(0,0,0,.85);
+                color: #fff;
+                padding: 10px 12px;
+                border-radius: 14px;
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+                font-size: 14px; line-height: 1.25;
+                z-index: 99999;
+                box-shadow: 0 10px 30px rgba(0,0,0,.25);
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                justify-content: space-between;
+            `;
+
+            bar.innerHTML = `
+                <div>
+                    <b>Instalar no iPhone:</b><br/>
+                    Toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.
+                </div>
+                <button id="closeIOSHint" style="
+                    border: 0;
+                    background: rgba(255,255,255,.18);
+                    color:#fff;
+                    padding: 8px 10px;
+                    border-radius: 12px;
+                    cursor:pointer;
+                    font-weight:600;
+                ">OK</button>
+            `;
+
+            document.body.appendChild(bar);
+            document.getElementById('closeIOSHint').onclick = () => bar.remove();
+        }
+
 
         // VERBOS DO DIA
         const VERBOS = [
@@ -2903,6 +2956,8 @@
         // INICIALIZAÇÃO DO SISTEMA
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
+            // Dica de instalação no iPhone (Safari)
+            showIOSInstallHint();
             const hasData = loadFromLocalStorage();
             
             if (hasData && appState.user) {
